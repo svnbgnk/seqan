@@ -38,7 +38,7 @@
 #define SEQAN_INDEX_FIND2_INDEX_APPROX_H_
 
 namespace seqan {
-
+/*
 template <size_t N>
 struct OptimalSearch
 {
@@ -48,7 +48,23 @@ struct OptimalSearch
 
     std::array<uint32_t, N> blocklength; // cumulated values / prefix sums
     uint32_t startPos;
+};*/
+
+//modified version from Sven
+template <size_t N>
+struct OptimalSearch
+{
+    std::array<uint8_t, N> pi; // order of the blocks. permutation of [1..n]
+    std::array<uint8_t, N> l; // minimum number of errors at the end of the corresponding block
+    std::array<uint8_t, N> u; // maximum number of errors at the end of the corresponding block
+
+    std::array<uint32_t, N> blocklength; // cumulated values / prefix sums
+    std::array<uint8_t, N> min;
+    std::array<uint8_t, N> max;
+    uint32_t startPos;
+    uint8_t startUniDir;
 };
+   
 
 template <size_t min, size_t max, typename TVoidType = void>
 struct OptimalSearchSchemes;
@@ -74,7 +90,7 @@ struct OptimalSearchSchemes<0, 1, TVoidType>
 
 template <typename TVoidType>
 constexpr std::array<OptimalSearch<2>, 2> OptimalSearchSchemes<0, 1, TVoidType>::VALUE;
-
+/*
 template <typename TVoidType>
 struct OptimalSearchSchemes<0, 2, TVoidType>
 {
@@ -84,7 +100,20 @@ struct OptimalSearchSchemes<0, 2, TVoidType>
         { {{3, 2, 1, 4}}, {{0, 0, 0, 0}}, {{0, 1, 1, 2}}, {{0, 0, 0, 0}}, 0 },
         { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, 0 }
     }};
+};*/
+
+
+template <typename TVoidType>
+struct OptimalSearchSchemes<0, 2, TVoidType>
+{
+    static constexpr std::array<OptimalSearch<4>, 3> VALUE
+    {{
+        { {{2, 1, 3, 4}}, {{0, 0, 1, 1}}, {{0, 0, 2, 2}}, {{0, 0, 0, 0}}, {{2, 1, 1, 1}}, {{2, 2, 3, 4}}, 0, 2 },
+        { {{3, 2, 1, 4}}, {{0, 0, 0, 0}}, {{0, 1, 1, 2}}, {{0, 0, 0, 0}}, {{3, 2, 1, 1}}, {{3, 3, 3, 4}}, 0, 3 },
+        { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, {{4, 3, 2, 1}}, {{4, 4, 4, 4}}, 0, 0 }
+    }};
 };
+
 
 template <typename TVoidType>
 constexpr std::array<OptimalSearch<4>, 3> OptimalSearchSchemes<0, 2, TVoidType>::VALUE;
@@ -299,10 +328,10 @@ inline void _optimalSearchSchemeComputeFixedBlocklength(std::array<OptimalSearch
 }
 
 template <typename TDelegate,
-          typename TText, typename TIndex, typename TIndexSpec,
-          typename TNeedle,
-          size_t nbrBlocks,
-          typename TDir>
+         typename TText, typename TIndex, typename TIndexSpec,
+         typename TNeedle,
+         size_t nbrBlocks,
+         typename TDir>
 inline void _optimalSearchSchemeDeletion(TDelegate & delegate,
                                          Iter<Index<TText, BidirectionalIndex<TIndex> >, VSTree<TopDown<TIndexSpec> > > iter,
                                          TNeedle const & needle,
@@ -438,9 +467,11 @@ inline void _optimalSearchSchemeExact(TDelegate & delegate,
                                       TDir const & /**/,
                                       TDistanceTag const & /**/)
 {
+    // not in last block and next Block is larger then current block
     bool goToRight2 = (blockIndex < s.pi.size() - 1) && s.pi[blockIndex + 1] > s.pi[blockIndex];
     if (std::is_same<TDir, Rev>::value)
     {
+        //search take rest of the block and search it reverse
         uint32_t infixPosLeft = needleRightPos - 1;
         uint32_t infixPosRight = needleLeftPos + s.blocklength[blockIndex] - 1;
 
@@ -630,9 +661,9 @@ template <size_t minErrors, size_t maxErrors,
           typename TDistanceTag>
 inline void
 find(TDelegate & delegate,
-     Index<TText, BidirectionalIndex<TIndexSpec> > & index,
-     StringSet<TNeedle, TStringSetSpec> const & needles,
-     TDistanceTag const & /**/)
+    Index<TText, BidirectionalIndex<TIndexSpec> > & index,
+    StringSet<TNeedle, TStringSetSpec> const & needles,
+    TDistanceTag const & /**/)
 {
     find<minErrors, maxErrors>(delegate, index, needles, TDistanceTag(), Serial());
 }
