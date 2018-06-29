@@ -59,10 +59,12 @@ struct OptimalSearch
     std::array<uint8_t, N> u; // maximum number of errors at the end of the corresponding block
 
     std::array<uint32_t, N> blocklength; // cumulated values / prefix sums
+    std::array<uint32_t, N> chronblocklength;
     std::array<uint8_t, N> min;
     std::array<uint8_t, N> max;
-    uint32_t startPos;
+    uint32_t startPos; //wrong position so i still get 0 from initialization
     uint8_t startUniDir;
+    
 };
    
 
@@ -108,9 +110,9 @@ struct OptimalSearchSchemes<0, 2, TVoidType>
 {
     static constexpr std::array<OptimalSearch<4>, 3> VALUE
     {{
-        { {{2, 1, 3, 4}}, {{0, 0, 1, 1}}, {{0, 0, 2, 2}}, {{0, 0, 0, 0}}, {{2, 1, 1, 1}}, {{2, 2, 3, 4}}, 0, 2 },
-        { {{3, 2, 1, 4}}, {{0, 0, 0, 0}}, {{0, 1, 1, 2}}, {{0, 0, 0, 0}}, {{3, 2, 1, 1}}, {{3, 3, 3, 4}}, 0, 3 },
-        { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, {{4, 3, 2, 1}}, {{4, 4, 4, 4}}, 0, 0 }
+        { {{2, 1, 3, 4}}, {{0, 0, 1, 1}}, {{0, 0, 2, 2}}, {{0, 0, 0, 0}}, {{0, 0, 0, 0}}, {{2, 1, 1, 1}}, {{2, 2, 3, 4}}, 0, 2 },
+        { {{3, 2, 1, 4}}, {{0, 0, 0, 0}}, {{0, 1, 1, 2}}, {{0, 0, 0, 0}}, {{0, 0, 0, 0}}, {{3, 2, 1, 1}}, {{3, 3, 3, 4}}, 0, 3 },
+        { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, {{0, 0, 0, 0}}, {{4, 3, 2, 1}}, {{4, 4, 4, 4}}, 0, 0 }
     }};
 };
 
@@ -306,11 +308,20 @@ inline void _optimalSearchSchemeInit(std::array<OptimalSearch<nbrBlocks>, N> & s
     // for that we need to slightly modify search()
     for (OptimalSearch<nbrBlocks> & s : ss)
     {
-        s.startPos = 0;
-        for (uint8_t i = 0; i < s.pi.size(); ++i)
-            if (s.pi[i] < s.pi[0])
-                s.startPos += s.blocklength[i] - ((i > 0) ? s.blocklength[i-1] : 0);
+        bool initialDirectionRight = s.pi[1] > s.pi[0];
+        if(initialDirectionRight){
+            s.startPos = 0;
+            for (uint8_t i = 1; i < s.pi.size(); ++i)
+                if (s.pi[i] < s.pi[0])
+                    s.startPos += s.blocklength[i] - s.blocklength[i-1];
+        }else{
+            s.startPos = s.blocklength[s.pi.size() - 1];
+            for (uint8_t i = 0; i < s.pi.size(); ++i)
+                if(s.pi[i] > s.pi[0])
+                    s.startPos -= s.blocklength[i] - s.blocklength[i-1];
+        }
     }
+    
 }
 
 template <size_t nbrBlocks, size_t N>
@@ -326,6 +337,7 @@ inline void _optimalSearchSchemeComputeFixedBlocklength(std::array<OptimalSearch
     _optimalSearchSchemeSetBlockLength(ss, blocklengths);
     _optimalSearchSchemeInit(ss);
 }
+
 
 template <typename TDelegate,
          typename TText, typename TIndex, typename TIndexSpec,
@@ -584,7 +596,14 @@ inline void _optimalSearchScheme(TDelegate & delegate,
                                  OptimalSearch<nbrBlocks> const & s,
                                  TDistanceTag const & /**/)
 {
-    _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Rev(), TDistanceTag());
+    
+        // Sven (also change startPos!!!)
+    bool initialDirectionRight = s.pi[1] > s.pi[0];
+    if(initialDirectionRight)
+        _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Rev(), TDistanceTag());
+    else
+        _optimalSearchScheme(delegate, it, needle, s.startPos + 1, s.startPos + 1, 0, s, 0, Fwd(), TDistanceTag());
+//     _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Rev(), TDistanceTag());
 }
 
 template <typename TDelegate,
