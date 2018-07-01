@@ -59,7 +59,8 @@ struct OptimalSearch
     std::array<uint8_t, N> u; // maximum number of errors at the end of the corresponding block
 
     std::array<uint32_t, N> blocklength; // cumulated values / prefix sums
-    std::array<uint32_t, N> chronblocklength;
+    std::array<uint32_t, N> chronBL;
+    std::array<uint32_t, N> revChronBL;
     std::array<uint8_t, N> min;
     std::array<uint8_t, N> max;
     uint32_t startPos; //wrong position so i still get 0 from initialization
@@ -92,7 +93,7 @@ struct OptimalSearchSchemes<0, 1, TVoidType>
 
 template <typename TVoidType>
 constexpr std::array<OptimalSearch<2>, 2> OptimalSearchSchemes<0, 1, TVoidType>::VALUE;
-/*
+
 template <typename TVoidType>
 struct OptimalSearchSchemes<0, 2, TVoidType>
 {
@@ -102,9 +103,9 @@ struct OptimalSearchSchemes<0, 2, TVoidType>
         { {{3, 2, 1, 4}}, {{0, 0, 0, 0}}, {{0, 1, 1, 2}}, {{0, 0, 0, 0}}, 0 },
         { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, 0 }
     }};
-};*/
+};
 
-
+/*
 template <typename TVoidType>
 struct OptimalSearchSchemes<0, 2, TVoidType>
 {
@@ -115,7 +116,7 @@ struct OptimalSearchSchemes<0, 2, TVoidType>
         { {{4, 3, 2, 1}}, {{0, 0, 0, 2}}, {{0, 1, 2, 2}}, {{0, 0, 0, 0}}, {{0, 0, 0, 0}}, {{4, 3, 2, 1}}, {{4, 4, 4, 4}}, 0, 0 }
     }};
 };
-
+*/
 
 template <typename TVoidType>
 constexpr std::array<OptimalSearch<4>, 3> OptimalSearchSchemes<0, 2, TVoidType>::VALUE;
