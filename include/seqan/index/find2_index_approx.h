@@ -603,7 +603,7 @@ inline void _optimalSearchScheme(TDelegate & delegate,
     if(initialDirectionRight)
         _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Rev(), TDistanceTag());
     else
-        _optimalSearchScheme(delegate, it, needle, s.startPos + 1, s.startPos + 1, 0, s, 0, Fwd(), TDistanceTag());
+        _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Fwd(), TDistanceTag());
 //     _optimalSearchScheme(delegate, it, needle, s.startPos, s.startPos + 1, 0, s, 0, Rev(), TDistanceTag());
 }
 
