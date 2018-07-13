@@ -289,7 +289,7 @@ template <typename TVoidType>
 constexpr std::array<OptimalSearch<5>, 3> OptimalSearchSchemes<4, 4, TVoidType>::VALUE;
 
 // Given the blocklengths (absolute, not cumulative values), assign it to all
-// OptimalSearches in a OptimalSearchScheme. The order of blocklength has to be from left to
+// OptimalSearches in a OptimalSearchScheme. The order of blocklength has to berrorse from left to
 // right (regarding blocks)
 template <size_t nbrBlocks, size_t N>
 inline void _optimalSearchSchemeSetBlockLength(std::array<OptimalSearch<nbrBlocks>, N> & ss,
@@ -481,6 +481,7 @@ inline void _optimalSearchSchemeExact(TDelegate & delegate,
                                       TDistanceTag const & /**/)
 {
     // not in last block and next Block is larger then current block
+    //TODO replace with my version
     bool goToRight2 = (blockIndex < s.pi.size() - 1) && s.pi[blockIndex + 1] > s.pi[blockIndex];
     if (std::is_same<TDir, Rev>::value)
     {
