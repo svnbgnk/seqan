@@ -61,13 +61,17 @@ struct OptimalSearch
     std::array<uint32_t, N> blocklength; // cumulated values / prefix sums
     std::array<uint32_t, N> chronBL;
     std::array<uint32_t, N> revChronBL;
+    std::array<uint32_t, N> blockStarts; //starting position of each block left to right
+    std::array<uint32_t, N> blockEnds; //ending position of each block left to right
+    std::array<uint32_t, N> revblockStarts; //starting position of each block left to right
+    std::array<uint32_t, N> revblockEnds; //ending position of each block left to right
     std::array<uint8_t, N> min;
     std::array<uint8_t, N> max;
-    uint32_t startPos; //wrong position so i still get 0 from initialization
+    uint32_t startPos; //move down later
     uint8_t startUniDir;
-    
+
 };
-   
+
 
 template <size_t min, size_t max, typename TVoidType = void>
 struct OptimalSearchSchemes;
@@ -322,7 +326,7 @@ inline void _optimalSearchSchemeInit(std::array<OptimalSearch<nbrBlocks>, N> & s
                     s.startPos -= s.blocklength[i] - s.blocklength[i-1];
         }
     }
-    
+
 }
 
 template <size_t nbrBlocks, size_t N>
@@ -598,7 +602,7 @@ inline void _optimalSearchScheme(TDelegate & delegate,
                                  OptimalSearch<nbrBlocks> const & s,
                                  TDistanceTag const & /**/)
 {
-    
+
         // Sven (also change startPos!!!)
     bool initialDirectionRight = s.pi[1] > s.pi[0];
     if(initialDirectionRight)
