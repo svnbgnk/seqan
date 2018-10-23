@@ -63,8 +63,8 @@ struct OptimalSearch
     std::array<uint32_t, N> revChronBL;
     std::array<uint32_t, N> blockStarts; //starting position of each block left to right
     std::array<uint32_t, N> blockEnds; //ending position of each block left to right
-    std::array<uint32_t, N> revblockStarts; //starting position of each block left to right
-    std::array<uint32_t, N> revblockEnds; //ending position of each block left to right
+    std::array<uint32_t, N> revblockStarts; //starting position of each block right to left
+    std::array<uint32_t, N> revblockEnds; //ending position of each block right to left
     std::array<uint8_t, N> min;
     std::array<uint8_t, N> max;
     uint32_t startPos; //move down later
@@ -485,8 +485,7 @@ inline void _optimalSearchSchemeExact(TDelegate & delegate,
                                       TDistanceTag const & /**/)
 {
     // not in last block and next Block is larger then current block
-    //TODO replace with my version
-    bool goToRight2 = (blockIndex < s.pi.size() - 1) && s.pi[blockIndex + 1] > s.pi[blockIndex];
+    bool goToRight2 = (blockIndex < s.pi.size() - 1) ? s.pi[blockIndex + 1] > s.pi[blockIndex] : s.pi[blockIndex] > s.pi[blockIndex - 1];
     if (std::is_same<TDir, Rev>::value)
     {
         //search take rest of the block and search it reverse
