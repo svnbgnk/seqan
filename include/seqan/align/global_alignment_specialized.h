@@ -188,6 +188,16 @@ int globalAlignmentScore(String<TAlphabetH, TSpecH> const & seqH,
     return _globalAlignmentScore(seqH, seqV, algorithmTag);
 }
 
+
+template <typename TString1, typename TString2>
+int globalAlignmentScore(TString1 const & seqH,
+                         TString2 const & seqV,
+                         MyersBitVector const & algorithmTag)
+{
+    return _globalAlignmentScore(seqH, seqV, algorithmTag);
+}
+
+
 template <typename TString, typename TSpec>
 int globalAlignmentScore(StringSet<TString, TSpec> const & strings,
                          MyersBitVector const & algorithmTag)

@@ -58,11 +58,10 @@ namespace seqan {
 // When using different alphabets, we will internally use the pattern alphabet
 // for the comparison.  This means that the text character is converted to the
 // pattern alphabet.  Here, the "pattern" is the shorter source sequence.
-
-template <typename TAlphabetH, typename TSpecH, typename TAlphabetV, typename TSpecV>
+template <typename TString1, typename TString2>
 int
-_globalAlignmentScore(String<TAlphabetH, TSpecH> const & seqH,
-                      String<TAlphabetV, TSpecV> const & seqV,
+_globalAlignmentScore(TString1 const & seqH,
+                      TString2 const & seqV,
                       MyersBitVector const & algorithmTag)
 {
     // Switch horizontal and vertical gap roles, gapsV should be the shorter one
@@ -73,14 +72,11 @@ _globalAlignmentScore(String<TAlphabetH, TSpecH> const & seqH,
     // Use size of unsigned int as blocksize for bit-vectors.
     const unsigned int BLOCK_SIZE = BitsPerValue<unsigned int>::VALUE;
 
-    typedef String<TAlphabetH, TSpecH> const TSequenceH;
-    typedef String<TAlphabetV, TSpecV> const TSequenceV;
+    typedef typename Value<TString2>::Type TPatternAlphabet;
+    typedef typename Size<TString1>::Type  TSourceSize;
 
-    typedef typename Value<TSequenceV>::Type TPatternAlphabet;
-    typedef typename Size<TSequenceH>::Type  TSourceSize;
-
-    TSequenceH const & x = seqH;
-    TSequenceV const & y = seqV;
+    TString1 const & x = seqH;
+    TString2 const & y = seqV;
 
     TSourceSize len_x = length(x);
     unsigned int pos = 0;

@@ -69,6 +69,7 @@ struct OptimalSearch
     std::array<uint8_t, N> max;
     uint32_t startPos; //move down later
     uint8_t startUniDir;
+    uint8_t id;
 
 };
 
