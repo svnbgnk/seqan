@@ -196,6 +196,7 @@ struct CompressedSA
         setFibre(*this, lf, FibreLF());
     }
 
+
     template <typename TPos>
     inline typename Value<CompressedSA>::Type const
     operator[](TPos pos)
@@ -208,6 +209,26 @@ struct CompressedSA
     operator[](TPos pos) const
     {
         return value(*this, pos);
+    }
+
+    template <typename TPos>
+    inline typename Value<CompressedSA>::Type const
+    operator()(TPos pos, int max, bool & found)
+    {
+	//int max = 5;
+	//bool found = false;
+        //return value(*this, pos);
+        return locateFMT(*this, pos, max, found);
+    }
+
+    template <typename TPos>
+    inline typename Value<CompressedSA>::Type
+    operator()(TPos pos, int max, bool & found) const
+    {
+	//int max = 5;
+	//bool found = false;
+        //return value(*this, pos);
+        return locateFMT(*this, pos, max, found);
     }
 };
 
@@ -510,6 +531,69 @@ value(CompressedSA<TText, TSpec, TConfig> const & compressedSA, TPos pos)
 
     return posAdd(getValue(values, getRank(indicators, pos) - 1), counter);
 }
+
+// ----------------------------------------------------------------------------
+// Function value()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn CompressedSA#value
+ *
+ * @brief Returns the value stored at a specified position in the compressed suffix-array.
+ *
+ * @signature TValue value(compressedSA, pos);
+ *
+ * @param[in] compressedSA The compressed suffix array to access.
+ * @param[in] pos          Position at which to access the suffix array. Types: @link UnsignedIntegerConcept @endlink.
+ * @param[in] max          Number of allowed LF-mappings. Types: @link UnsignedIntegerConcept @endlink.
+ *
+ * Note that the compressed suffix array is read only. Therefore a const reference is return by this function.
+ */
+
+template <typename TText, typename TSpec, typename TConfig, typename TPos, typename TMax>
+inline typename Value<CompressedSA<TText, TSpec, TConfig> >::Type
+locateFMT(CompressedSA<TText, TSpec, TConfig> & compressedSA, TPos pos, TMax max, bool & found)
+{
+    typedef typename Fibre<CompressedSA<TText, TSpec, TConfig>, FibreSparseString>::Type     TSparseString;
+    typedef typename Fibre<TSparseString, FibreIndicators>::Type    TIndicators;
+    typedef typename Fibre<TSparseString, FibreValues>::Type        TValues;
+
+    TIndicators const & indicators = getFibre(compressedSA.sparseString, FibreIndicators());
+    TValues const & values = getFibre(compressedSA.sparseString, FibreValues());
+
+    TPos counter = 0;
+    // stop after no more than max LF-Mappings
+    for (; !getValue(indicators, pos) && counter <= max; ++counter)
+        pos = getFibre(compressedSA, FibreLF())(pos);
+
+    if(counter <= max)
+        found = true;
+
+    return posAdd(getValue(values, getRank(indicators, pos) - 1), counter);
+}
+
+template <typename TText, typename TSpec, typename TConfig, typename TPos, typename TMax>
+inline typename Value<CompressedSA<TText, TSpec, TConfig> >::Type const
+locateFMT(CompressedSA<TText, TSpec, TConfig> const & compressedSA, TPos pos, TMax max, bool & found)
+{
+    typedef typename Fibre<CompressedSA<TText, TSpec, TConfig>, FibreSparseString>::Type     TSparseString;
+    typedef typename Fibre<TSparseString, FibreIndicators>::Type    TIndicators;
+    typedef typename Fibre<TSparseString, FibreValues>::Type        TValues;
+
+    TIndicators const & indicators = getFibre(compressedSA.sparseString, FibreIndicators());
+    TValues const & values = getFibre(compressedSA.sparseString, FibreValues());
+
+    TPos counter = 0;
+    // stop after no more than max LF-Mappings 
+    for (; !getValue(indicators, pos) && counter <= max; ++counter)
+        pos = getFibre(compressedSA, FibreLF())(pos);
+    
+    if(counter <= max)
+        found = true;
+
+    return posAdd(getValue(values, getRank(indicators, pos) - 1), counter);
+}
+
 
 // ----------------------------------------------------------------------------
 // Function open()
