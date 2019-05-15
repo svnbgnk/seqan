@@ -562,11 +562,11 @@ locateFMT(CompressedSA<TText, TSpec, TConfig> & compressedSA, TPos pos, TMax max
     TValues const & values = getFibre(compressedSA.sparseString, FibreValues());
 
     TPos counter = 0;
-    // stop after no more than max LF-Mappings
-    for (; !getValue(indicators, pos) && counter <= max; ++counter)
+    // stop after less than max LF-Mappings
+    for (; !getValue(indicators, pos) && counter < max; ++counter)
         pos = getFibre(compressedSA, FibreLF())(pos);
 
-    if(counter <= max)
+    if(counter < max)
         found = true;
 
     return posAdd(getValue(values, getRank(indicators, pos) - 1), counter);
@@ -584,11 +584,11 @@ locateFMT(CompressedSA<TText, TSpec, TConfig> const & compressedSA, TPos pos, TM
     TValues const & values = getFibre(compressedSA.sparseString, FibreValues());
 
     TPos counter = 0;
-    // stop after no more than max LF-Mappings 
-    for (; !getValue(indicators, pos) && counter <= max; ++counter)
+    // stop after less than max LF-Mappings 
+    for (; !getValue(indicators, pos) && counter < max; ++counter)
         pos = getFibre(compressedSA, FibreLF())(pos);
     
-    if(counter <= max)
+    if(counter < max)
         found = true;
 
     return posAdd(getValue(values, getRank(indicators, pos) - 1), counter);
